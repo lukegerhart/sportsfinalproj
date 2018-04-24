@@ -25,7 +25,7 @@ rate = total_successes / total_onsides
 
 recovery_epa = [float(x[-12]) for x in successful_onsides]
 recovery_wpa = [float(x[-4]) for x in successful_onsides] # if x[62] != '1' else 0
-wpa = [float(x[-4]) for x in onsides]
+wpa = [-float(x[-4]) for x in onsides[1:]]
 # print(recovery_epa)
 # print(sum(recovery_epa) / len(recovery_epa)) #mean EPA for successful onside kicks
 # print(sum(recovery_wpa) / len(recovery_wpa)) #mean WPA for successful onside kicks
@@ -38,6 +38,12 @@ home = [x[71] for x in onsides[1:]]
 away = [x[72] for x in onsides[1:]]
 kickingteam = [x[17] for x in onsides[1:]]
 
+scorediff = [-int(x[69]) for x in onsides[1:]]
+x, y = zip(*sorted(zip(scorediff, wpa)))
+plt.scatter(x, y)
+plt.title('Score Differential vs. WPA For Kicking Team')
+plt.xlabel('Kicking Team\'s Score Margin')
+plt.ylabel('Kicking Teams\'s Win Probability Added')
 #State of game score pie chart
 # scorediff = [x[69] for x in onsides[1:]]
 # abs_scorediff = [x[70] for x in onsides[1:]]
