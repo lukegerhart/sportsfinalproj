@@ -1,11 +1,16 @@
 import csv, collections
 import matplotlib.pyplot as plt
 import numpy as np
+def avg(a):
+	return sum(a)/len(a)
 onsides = []
 successful_onsides = []
 unsuccessful = []
 first_half = []
+kickoffsonly = []
 all_onsides = csv.reader(open('onside.csv'), quotechar='"')
+all_kicks = csv.reader(open('allkickoff.csv'), quotechar='"')
+kickoffs = csv.reader(open('kickoffsonly.csv'), quotechar='"')
 for onside in all_onsides:
 	onsides.append(onside)
 	if 'RECOVERED' in onside[18]:
@@ -17,20 +22,34 @@ for onside in all_onsides:
 		first_half.append(onside)
 # for so in successful_onsides:
 	# print(*so, sep='|')
-print(len(first_half))	
+for kick in kickoffs:
+	if "Date" in kick:
+		continue
+	if kick[-4] == 'NA':
+		continue
+	kickoffsonly.append(kick)
+kickoff_wpa = [float(x[-4]) for x in kickoffsonly]
+# print('Mean WPA for normal kickoff: ', -sum(kickoff_wpa)/len(kickoff_wpa))
+# exit()
 total_onsides = len(onsides)
 total_successes = len(successful_onsides)
 rate = total_successes / total_onsides
 # print(rate)
 
 recovery_epa = [float(x[-12]) for x in successful_onsides]
+epa = [float(x[-12]) if 'RECOVERED' in x[18] else -float(x[-12]) for x in onsides[1:]]
+kickoff_epa = [float(x[-12]) for x in kickoffsonly]
 recovery_wpa = [float(x[-4]) for x in successful_onsides] # if x[62] != '1' else 0
-wpa = [-float(x[-4]) for x in onsides[1:]]
+wpa = [float(x[-4]) if 'RECOVERED' in x[18] else -float(x[-4]) for x in onsides[1:]]
+unsuccessful_epa = [float(x[-12]) for x in unsuccessful[1:]]
+unsuccessful_wpa = [float(x[-4]) for x in unsuccessful[1:]]
+print(-avg(unsuccessful_epa), -avg(unsuccessful_wpa))
 # print(recovery_epa)
 # print(sum(recovery_epa) / len(recovery_epa)) #mean EPA for successful onside kicks
-# print(sum(recovery_wpa) / len(recovery_wpa)) #mean WPA for successful onside kicks
+print('Mean WPA for onside attempt: ', avg(wpa)) #mean WPA for successful onside kicks
+# print('Mean WPA for successful onside attempt: ', -sum(recovery_wpa) / len(recovery_wpa)) #mean WPA for successful onside kicks
 
-
+print(-avg(kickoff_epa), avg(epa), -avg(recovery_epa))
 timesecs = [float(x[7]) for x in onsides[1:]]
 recovered = [1 if 'RECOVERED' in x[18] else 0 for x in onsides[1:]]
 winprob_pre = [float(x[-9]) if x[17] == x[71] else float(x[-8]) for x in onsides[1:]]
